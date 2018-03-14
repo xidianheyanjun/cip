@@ -1,0 +1,194 @@
+<template>
+  <div class="body">
+    <table class="table">
+      <tr>
+        <td class="label">标识</td>
+        <td class="param">
+          <input type="text" v-model="param.id" placeholder="接口的标识"/>
+        </td>
+        <td class="label">平台</td>
+        <td class="param">
+          <select v-model="param.platform">
+            <option v-for="item in options" :value="item.value">{{item.name}}</option>
+          </select>
+        </td>
+        <td class="label">版本</td>
+        <td class="param">
+          <input type="text" v-model="param.version" placeholder="应用的版本号"/>
+        </td>
+        <td class="label">接口名称</td>
+        <td class="param">
+          <input type="text" v-model="param.interfaceName" placeholder="接口的名称"/>
+        </td>
+      </tr>
+    </table>
+    <div class="btn-pane">
+      <div @click="doQuery" class="btn hand">查询</div>
+      <div @click="create" class="btn hand">创建</div>
+    </div>
+    <table class="table">
+      <tr>
+        <td v-for="item in colModel" class="head">{{item.title}}</td>
+      </tr>
+      <tr v-for="(row, index) in list">
+        <template v-for="col in colModel">
+          <td v-if="col['code']=='operate'" :class="['data', index%2==1?'even':'odd']">
+            <span @click="modify(row)" class="btn hand">修改</span>
+            <span @click="remove(row)" class="btn hand">删除</span>
+          </td>
+          <td v-if="col['code']!='operate'" :class="['data', index%2==1?'even':'odd']">{{row[col["code"]]}}</td>
+        </template>
+      </tr>
+    </table>
+  </div>
+</template>
+
+<script type="text/ecmascript-6">
+  import {mapGetters, mapActions} from 'vuex';
+  import env from '@/config/env';
+  import string from '@/util/string';
+  import common from "@/util/common";
+  export default {
+    components: {},
+    data(){
+      return {
+        options: [{
+          name: "应用商店",
+          value: "appstore"
+        }, {
+          name: "游戏中心",
+          value: "gamecenter"
+        }],
+        param: {
+          id: "",
+          platform: "appstore",
+          version: "",
+          interfaceName: ""
+        },
+        colModel: [{
+          code: "id",
+          title: "标识"
+        }, {
+          code: "platform",
+          title: "平台"
+        }, {
+          code: "version",
+          title: "版本"
+        }, {
+          code: "name",
+          title: "接口名称"
+        }, {
+          code: "createTime",
+          title: "创建时间"
+        }, {
+          code: "operate",
+          title: "操作"
+        }],
+        list: []
+      };
+    },
+    mounted() {
+      let self = this;
+      self.doQuery();
+    },
+    methods: {
+      doQuery(){
+        let self = this;
+        self.$sendRequest({
+          url: env.resource.interfaceList,
+          params: self.param
+        }).then((data)=> {
+          self.list = data.data || [];
+        }, (err)=> {
+        });
+      },
+      create(){
+      },
+      modify(row){
+      },
+      remove(row){
+      }
+    }
+  }
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+  .body {
+    width: 90%;
+    margin: 0 auto;
+  }
+
+  .table {
+    width: 100%;
+    margin: 20px auto 0;
+    border-collapse: collapse;
+    border: 1px solid #aaaaaa;
+  }
+
+  .table tr {
+  }
+
+  .table tr td {
+    padding: 10px 0;
+    border: 1px solid #aaaaaa;
+  }
+
+  .table tr td.head {
+    text-align: center;
+    background-color: #999999;
+  }
+
+  .table tr td.data {
+    text-align: center;
+  }
+
+  .table tr td.data.even {
+    background-color: #f1f1f1;
+  }
+
+  .table tr td.data.odd {
+  }
+
+  .table tr td .btn {
+    margin: 0 10px;
+  }
+
+  .table tr td.label {
+    width: 80px;
+    text-align: center;
+    background-color: #f5f5f5;
+  }
+
+  .table tr td.param {
+    padding-left: 20px;
+    text-align: left;
+  }
+
+  .table input, .table select {
+    display: inline-block;
+    width: 160px;
+    height: 32px;
+    padding-left: 10px;
+    color: #999999;
+    font-size: 14px;
+    line-height: 32px;
+    border: 1px solid #cccccc;
+  }
+
+  .btn-pane {
+    margin-top: 20px;
+  }
+
+  .btn-pane .btn {
+    display: inline-block;
+    text-align: center;
+    width: 90px;
+    height: 32px;
+    line-height: 32px;
+    font-size: 16px;
+    color: #ffffff;
+    background-color: #52a2ff;
+    border-radius: 2px;
+  }
+</style>

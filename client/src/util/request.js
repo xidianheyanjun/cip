@@ -39,17 +39,6 @@ Vue.prototype.$sendRequest = (option) => {
   return new Promise((resolve, reject)=> {
     Vue.http[method](option.url, params).then(function (data) {
       console.log(data);
-      if (option.url == env.resource.logout) {
-        resolve(data.body);
-        return false;
-      }
-      // 如果是账户校验失败或者不是退出接口则跳转到账户登录页面
-      if (window.location.hash != ("#" + env.homePagePath) && data.body.code == -1) {
-        window.location.href = string.format(env.resource.auth, {
-          callbackUrl: window.encodeURIComponent(window.location.href)
-        });
-        return false;
-      }
       resolve(data.body);
     }, function (err) {
       console.log(err);

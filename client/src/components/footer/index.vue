@@ -1,8 +1,7 @@
 <template>
   <div class="container">
     <div class="copyright">
-      <span>COPYRIGHT &copy; 1996-2018 vivo COMMUNICATION TECHNOLOGY CO.LTD.ALL RIGHTS RESERVED. </span>
-      <a :href="link" target="_blank">粤ICP备05100288号</a>
+      <span>COPYRIGHT &copy; 2018 hyj RIGHTS RESERVED. </span>
     </div>
   </div>
 </template>
@@ -15,9 +14,7 @@
   export default {
     components: {},
     data(){
-      return {
-        link: "http://www.miitbeian.gov.cn"
-      };
+      return {};
     },
     mounted() {
       let self = this;

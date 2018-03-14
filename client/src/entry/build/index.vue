@@ -1,9 +1,5 @@
 <template>
   <div>
-    <div>首页</div>
-    <div>模块数</div>
-    <div>接口数</div>
-    <div>用户数</div>
   </div>
 </template>
 

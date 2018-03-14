@@ -68,7 +68,6 @@
     display: inline-block;
     width: 22px;
     height: 22px;
-    background: url("../../assets/image/job/exception.png") center center no-repeat;
     background-size: 100% 100%;
     vertical-align: top;
   }

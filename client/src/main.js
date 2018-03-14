@@ -13,8 +13,6 @@ import VueResouse from 'vue-resource';
 import store from './vuex/store';
 import env from './config/env';
 import request from '@/util/request';
-import echarts from "echarts";
-Vue.prototype.$echarts = echarts
 
 
 /* eslint-disable no-new */

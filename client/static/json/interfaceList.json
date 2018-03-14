@@ -1,0 +1,41 @@
+{
+  "code": 0,
+  "msg": "成功",
+  "data": [
+    {
+      "id": 1,
+      "platform": "gamecenter",
+      "version": 5.0,
+      "name": "登录",
+      "createTime": "2018-03-14 11:11:00"
+    },
+    {
+      "id": 2,
+      "platform": "gamecenter",
+      "version": 5.0,
+      "name": "登录",
+      "createTime": "2018-03-14 11:11:00"
+    },
+    {
+      "id": 3,
+      "platform": "gamecenter",
+      "version": 5.0,
+      "name": "登录",
+      "createTime": "2018-03-14 11:11:00"
+    },
+    {
+      "id": 4,
+      "platform": "gamecenter",
+      "version": 5.0,
+      "name": "登录",
+      "createTime": "2018-03-14 11:11:00"
+    },
+    {
+      "id": 5,
+      "platform": "gamecenter",
+      "version": 5.0,
+      "name": "登录",
+      "createTime": "2018-03-14 11:11:00"
+    }
+  ]
+}

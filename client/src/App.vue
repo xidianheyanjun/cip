@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="root-body">
+  <div id="app">
     <cmp-header></cmp-header>
     <router-view></router-view>
     <cmp-footer></cmp-footer>
@@ -21,7 +21,8 @@
       return {};
     },
     mounted(){
-    }
+    },
+    methods: {}
   }
 </script>
 
@@ -91,34 +92,8 @@
     outline: none
   }
 
-  /* 项目规则 */
-  .root-body {
-    position: relative;
-  }
-
-  .bg-color {
-    background-color: #e1e5ed;
-    height: 86px;
-  }
-
-  .container-body {
-    width: 1200px;
-    margin: 0 auto;
-    padding-top: 20px;
-  }
-
-  .h-line {
-    margin-top: 20px;
-    height: 1px;
-    width: 100%;
-    background-color: #cccccc;
-  }
-
   /* 悬浮手势 */
   .hand {
-  }
-
-  .hand:hover {
     cursor: pointer;
   }
 </style>
