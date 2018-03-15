@@ -3,7 +3,6 @@
     <div v-if="box.isShow" class="mask"></div>
     <div v-if="box.isShow" class="box-message">
       <div class="body">
-        <div class="icon-warn"></div>
         <div class="text">{{box.msg}}</div>
       </div>
       <div @click="hideBox" class="btn-box-ok hand">确定</div>
@@ -62,14 +61,6 @@
 
   .box-message .body {
     margin: 60px 80px 0;
-  }
-
-  .box-message .body .icon-warn {
-    display: inline-block;
-    width: 22px;
-    height: 22px;
-    background-size: 100% 100%;
-    vertical-align: top;
   }
 
   .box-message .body .text {

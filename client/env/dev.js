@@ -12,6 +12,9 @@ export default {
     path: "/build/index"
   }],
   resource: {
-    interfaceList: "static/json/interfaceList.json"
+    interfaceList: "static/json/interfaceList.json",
+    removeInterface: "static/json/removeInterface.json",
+    loadInterface: "static/json/loadInterface.json",
+    saveInterface: "static/json/saveInterface.json"
   }
 };

@@ -48,20 +48,15 @@
   import env from '@/config/env';
   import string from '@/util/string';
   import common from "@/util/common";
+  import kv from "@/util/kv";
   export default {
     components: {},
     data(){
       return {
-        options: [{
-          name: "应用商店",
-          value: "appstore"
-        }, {
-          name: "游戏中心",
-          value: "gamecenter"
-        }],
+        options: kv.platform,
         param: {
           id: "",
-          platform: "appstore",
+          platform: kv.platform[0].value,
           version: "",
           interfaceName: ""
         },
@@ -84,7 +79,8 @@
           code: "operate",
           title: "操作"
         }],
-        list: []
+        list: [],
+        isRemoving: false
       };
     },
     mounted() {
@@ -103,10 +99,44 @@
         });
       },
       create(){
+        this.$router.push({
+          path: "/interface/detail",
+          query: {}
+        });
       },
       modify(row){
+        this.$router.push({
+          path: "/interface/detail",
+          query: {
+            id: row.id
+          }
+        });
       },
       remove(row){
+        let self = this;
+        if (self.isRemoving) {
+          console.log("self.isRemoving", self.isRemoving);
+          return false;
+        }
+        self.isRemoving = true;
+        self.$sendRequest({
+          url: env.resource.interfaceList,
+          params: {
+            id: row.id
+          }
+        }).then((data)=> {
+          if (data.code != 0) {
+            self.$store.dispatch('box', {msg: data.msg || "服务异常，请稍后再试"});
+            return false;
+          }
+
+          self.$store.dispatch('box', {msg: "删除成功"});
+          self.doQuery();
+          self.isRemoving = false;
+        }, (err)=> {
+          self.$store.dispatch('box', {msg: "网络异常，请稍后再试"});
+          self.isRemoving = false;
+        });
       }
     }
   }
@@ -169,7 +199,7 @@
     display: inline-block;
     width: 160px;
     height: 32px;
-    padding-left: 10px;
+    padding: 0 10px;
     color: #999999;
     font-size: 14px;
     line-height: 32px;

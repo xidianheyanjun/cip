@@ -17,6 +17,7 @@
     "build:release": "npm run generate:route && npm run generate:vuex && npm run copy:build && node build/build.js"
   },
   "dependencies": {
+    "codemirror": "^5.35.0",
     "es6-promise": "^4.1.0",
     "vue": "^2.3.3",
     "vue-resource": "^1.3.1",
