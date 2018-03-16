@@ -4,11 +4,11 @@
       <tr>
         <td class="label">接口代码</td>
         <td class="param">
-          <input type="text" v-model="param.interfaceCode" placeholder="接口调用的代码"/>
+          <input type="text" v-model="param.code" placeholder="接口调用的代码"/>
         </td>
         <td class="label">接口名称</td>
         <td class="param">
-          <input type="text" v-model="param.interfaceName" placeholder="接口的名称"/>
+          <input type="text" v-model="param.name" placeholder="接口的名称"/>
         </td>
       </tr>
       <tr>
@@ -53,8 +53,8 @@
         options: kv.platform,
         param: {
           id: 0,
-          interfaceCode: "",
-          interfaceName: "",
+          code: "",
+          name: "",
           platform: kv.platform[0].value,
           minVersion: "",
           maxVersion: "",
@@ -94,7 +94,7 @@
       },
       save(){
         let self = this;
-        if (!self.param.interfaceCode) {
+        if (!self.param.code) {
           self.$store.dispatch('box', {msg: "接口代码不能为空"});
           return false;
         }
@@ -106,8 +106,8 @@
           url: env.resource.saveInterface,
           params: {
             id: self.param.id,
-            interfaceCode: self.param.interfaceCode,
-            interfaceName: self.param.interfaceName,
+            code: self.param.code,
+            name: self.param.name,
             platform: self.param.platform,
             minVersion: self.param.minVersion,
             maxVersion: self.param.maxVersion,
@@ -119,6 +119,9 @@
             return false;
           }
           self.$store.dispatch('box', {msg: "保存成功"});
+          if (!self.param.id) {
+            self.param.id = data.data.id
+          }
         }, (err)=> {
           self.$store.dispatch('box', {msg: "网络异常，请稍后再试"});
         });

@@ -1,0 +1,1 @@
+import _home_index from "@/entry/home/index";export default [{path: "/home/index", name:"/home/index", component: _home_index},{path: "/home/index/:id", name:"/home/index/id", component: _home_index}]

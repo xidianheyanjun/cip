@@ -1,8 +1,6 @@
 import Vue from 'vue';
 import VueResouse from 'vue-resource';
 import { Promise } from 'es6-promise';
-import env from '@/config/env';
-import string from '@/util/string';
 import common from "@/util/common";
 Vue.use(VueResouse);
 Vue.http.options.credentials = true;
@@ -14,21 +12,15 @@ Vue.http.options.emulateJSON = true;
 // option.success:成功回调
 // option.error:失败回调
 Vue.prototype.$sendRequest = (option) => {
-  let method = option["method"] || "post";
+  let method = option["method"] || "get";
   option.params = option.params || {};
   let searchParam = common.parseParam();
   for (let key in searchParam) {
-    if (!key) {
-      continue;
-    }
     option.params[key] = searchParam[key];
   }
 
-  let cookies = common.getAllCookie();
+  let cookies = common.getAllValidCookie();
   for (let key in cookies) {
-    if (!key) {
-      continue;
-    }
     option.params[key] = cookies[key];
   }
   let params = method != "post" ? {params: option.params} : option.params;

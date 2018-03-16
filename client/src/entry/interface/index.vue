@@ -6,19 +6,26 @@
         <td class="param">
           <input type="text" v-model="param.id" placeholder="接口的标识"/>
         </td>
+        <td class="label">接口代码</td>
+        <td class="param">
+          <input type="text" v-model="param.code" placeholder="接口调用的代码"/>
+        </td>
+        <td class="label">接口名称</td>
+        <td class="param">
+          <input type="text" v-model="param.name" placeholder="接口的名称"/>
+        </td>
         <td class="label">平台</td>
         <td class="param">
           <select v-model="param.platform">
             <option v-for="item in options" :value="item.value">{{item.name}}</option>
           </select>
         </td>
+      </tr>
+      <tr>
         <td class="label">版本</td>
-        <td class="param">
-          <input type="text" v-model="param.version" placeholder="应用的版本号"/>
-        </td>
-        <td class="label">接口名称</td>
-        <td class="param">
-          <input type="text" v-model="param.interfaceName" placeholder="接口的名称"/>
+        <td colspan="7" class="param">
+          <input type="text" v-model="param.minVersion" placeholder="应用的最小版本号"/>
+          <input type="text" v-model="param.maxVersion" placeholder="应用的最大版本号"/>
         </td>
       </tr>
     </table>
@@ -57,8 +64,10 @@
         param: {
           id: "",
           platform: kv.platform[0].value,
-          version: "",
-          interfaceName: ""
+          minVersion: "",
+          maxVersion: "",
+          code: "",
+          name: ""
         },
         colModel: [{
           code: "id",
@@ -67,8 +76,11 @@
           code: "platform",
           title: "平台"
         }, {
-          code: "version",
-          title: "版本"
+          code: "minVersion",
+          title: "最小版本"
+        }, {
+          code: "maxVersion",
+          title: "最大版本"
         }, {
           code: "name",
           title: "接口名称"
@@ -120,7 +132,7 @@
         }
         self.isRemoving = true;
         self.$sendRequest({
-          url: env.resource.interfaceList,
+          url: env.resource.removeInterface,
           params: {
             id: row.id
           }
