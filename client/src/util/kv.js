@@ -4,6 +4,6 @@ export default {
     value: "appstore"
   }, {
     name: "游戏中心",
-    value: "gamecenter"
+    value: "com.vivo.game"
   }]
 };
