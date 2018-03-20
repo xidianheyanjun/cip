@@ -17,21 +17,8 @@ export default {
   },
   mounted() {
     let self = this;
-    window.setInterval(()=> {
-      console.log(1, window.AppWebClient);
-    }, 1000);
-    /*JSON.stringify({
-     toast: "1111111",
-     webErrorCatch: "callback",
-     localErrorCatch: "true"
-     });
-     window.AppWebClient.invokeLocal("webToastShow", info);*/
-    window.setTimeout(()=> {
-      console.log(window);
-      window.webToastShow("111");
-    }, 2000);
-  },
-  methods: {}
+    window.toast(111);
+  }
 }
 </script>
 

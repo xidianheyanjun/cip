@@ -1,5 +1,6 @@
 "use strict"
 let Promise = require("promise");
+let UglifyJS = require('uglify-js');
 let sqlObj = require("../sql/data");
 let responseCode = require("../../../util/response-code");
 let kv = require("../../../util/kv");
@@ -32,7 +33,7 @@ class Method {
         let query = self["req"]["query"];
         let cookies = self["req"]["cookies"];
         let platform = cookies["vvc_pn"] || cookies["pn"];
-        let appVersion = parseInt(cookies["vvc_av"] || cookies["av"] || self.env["interface"]["minAppVersion"]);
+        let appVersion = parseInt(cookies["vvc_app_version"] || cookies["app_version"] || self.env["interface"]["minAppVersion"]);
         let include = query["include"] || "";
         console.log("pull-entry", platform, appVersion, include);
         platform = self._matchPackage(platform);
@@ -61,9 +62,10 @@ class Method {
                 self["resolver"].output("");
                 return false;
             }
-            let js = ";";
+            let js = "";
             for (let m = 0; m < results.length; ++m) {
-                js += results[m]["js"] + ";";
+                let result = UglifyJS.minify(results[m]["js"] + ";", {mangle: true});
+                js += result.code;
             }
             self["resolver"].output(js);
         }, function (err) {

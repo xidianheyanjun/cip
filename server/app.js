@@ -5,7 +5,7 @@ let session = require("express-session");
 
 let FileUtils = require("./lib/FileUtils");
 let envPath = "./env.json";// 配置文件地址
-FileUtils.loadFileData(envPath).then(function (env) {
+FileUtils.loadFileData(envPath).then(function () {
     let express = require('express');
     let path = require('path');
     let favicon = require('serve-favicon');

@@ -1,6 +1,3 @@
-/**
- * Created by Administrator on 2017/2/1.
- */
 "use strict"
 let Promise = require("promise");
 let mysql = require("mysql");
