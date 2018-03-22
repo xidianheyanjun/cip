@@ -7,7 +7,6 @@ FileUtils.listFilePath = function (path, pathRegular) {
     if (!fs.existsSync(path)) {
         return filePaths;
     }
-
     let stat = fs.lstatSync(path);
     if (stat.isDirectory()) {
         // 如果是目录则获取文件列表继续递归
@@ -25,7 +24,6 @@ FileUtils.listFilePath = function (path, pathRegular) {
             filePaths.push(path);
         }
     }
-
     return filePaths;
 };
 FileUtils.loadFileData = function (filePath) {
@@ -35,7 +33,6 @@ FileUtils.loadFileData = function (filePath) {
                 reject(err);
                 return false;
             }
-
             let parseData = JSON.parse(data);
             resolve(parseData);
         });
