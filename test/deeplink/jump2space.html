@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>跳转官网中间页</title>
+  <script>
+	function getParameter(name){
+		var search = document.location.search;
+		var pattern = new RegExp("[?&]"+name+"\=([^&]+)", "g");
+		var matcher = pattern.exec(search);
+		var items = null;
+		if(null != matcher){
+			items = matcher[1];
+		}
+		return items;
+	}
+	
+	var h5Link = "space://vivo.com/web?statSource=0&messageSource=1&subMessageSource=1&messageTitle=2342&_t=" + Date.now() + "&uri=" + getParameter("link");
+	location.href = h5Link;
+  </script>
+</head>
+<body>
+</body>
+</html>

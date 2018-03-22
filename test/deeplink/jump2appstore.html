@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>跳转商店中间页</title>
+  <script>
+	function getParameter(name){
+		var search = document.location.search;
+		var pattern = new RegExp("[?&]"+name+"\=([^&]+)", "g");
+		var matcher = pattern.exec(search);
+		var items = null;
+		if(null != matcher){
+			items = matcher[1];
+		}
+		return items;
+	}
+	
+	var h5Link = "vivomarket://webview?url=" + getParameter("link");
+	location.href = h5Link;
+  </script>
+</head>
+<body>
+</body>
+</html>
