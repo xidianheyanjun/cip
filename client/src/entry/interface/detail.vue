@@ -38,101 +38,101 @@
 </template>
 
 <script type="text/ecmascript-6">
-  import {mapGetters, mapActions} from 'vuex';
-  import env from '@/config/env';
-  import string from '@/util/string';
-  import common from "@/util/common";
-  import kv from "@/util/kv";
-  import "codemirror/lib/codemirror.css";
-  import CodeMirror from "codemirror";
-  import "codemirror/mode/javascript/javascript";
-  export default {
-    components: {},
-    data(){
-      return {
-        options: kv.platform,
-        param: {
-          id: 0,
-          code: "",
-          name: "",
-          platform: kv.platform[0].value,
-          minVersion: "",
-          maxVersion: "",
-          js: ""
-        },
-        editor: null
-      };
-    },
-    mounted() {
+import {mapGetters, mapActions} from 'vuex';
+import env from '@/config/env';
+import string from '@/util/string';
+import common from "@/util/common";
+import kv from "@/util/kv";
+import "codemirror/lib/codemirror.css";
+import CodeMirror from "codemirror";
+import "codemirror/mode/javascript/javascript";
+export default {
+  components: {},
+  data(){
+    return {
+      options: kv.platform,
+      param: {
+        id: 0,
+        code: "",
+        name: "",
+        platform: kv.platform[0].value,
+        minVersion: "",
+        maxVersion: "",
+        js: ""
+      },
+      editor: null
+    };
+  },
+  mounted() {
+    let self = this;
+    self.param.id = self.$route.query.id;
+    self.param.id ? self.loadDetail(self.param.id) : self.init();
+  },
+  methods: {
+    loadDetail(id){
       let self = this;
-      self.param.id = self.$route.query.id;
-      self.param.id ? self.loadDetail(self.param.id) : self.init();
+      self.$sendRequest({
+        url: env.resource.loadInterface,
+        params: {
+          id: id
+        }
+      }).then((data)=> {
+        common.extend(self.param, data.data);
+        self.init();
+      }, (err)=> {
+        self.$store.dispatch('box', {msg: "网络异常，请稍后再试"});
+      });
     },
-    methods: {
-      loadDetail(id){
-        let self = this;
-        self.$sendRequest({
-          url: env.resource.loadInterface,
-          params: {
-            id: id
-          }
-        }).then((data)=> {
-          common.extend(self.param, data.data);
-          self.init();
-        }, (err)=> {
-          self.$store.dispatch('box', {msg: "网络异常，请稍后再试"});
-        });
-      },
-      init(){
-        let self = this;
-        self.editor = CodeMirror.fromTextArea(self.$refs.ide, {
-          mode: "text/javascript",
-          lineNumbers: true,
-          tabSize: 2
-        });
-        self.editor.setValue(self.param.js);
-      },
-      save(){
-        let self = this;
-        if (!self.param.code) {
-          self.$store.dispatch('box', {msg: "接口代码不能为空"});
-          return false;
-        }
-        if (!self.editor.getValue()) {
-          self.$store.dispatch('box', {msg: "接口内容不能为空"});
-          return false;
-        }
-        self.$sendRequest({
-          url: env.resource.saveInterface,
-          params: {
-            id: self.param.id,
-            code: self.param.code,
-            name: self.param.name,
-            platform: self.param.platform,
-            minVersion: self.param.minVersion,
-            maxVersion: self.param.maxVersion,
-            js: self.editor.getValue()
-          }
-        }).then((data)=> {
-          if (data.code != 0) {
-            self.$store.dispatch('box', {msg: data.msg});
-            return false;
-          }
-          self.$store.dispatch('box', {msg: "保存成功"});
-          if (!self.param.id) {
-            self.param.id = data.data.id
-          }
-        }, (err)=> {
-          self.$store.dispatch('box', {msg: "网络异常，请稍后再试"});
-        });
-      },
-      cancel(){
-        this.$router.push({
-          path: "/interface/index"
-        });
+    init(){
+      let self = this;
+      self.editor = CodeMirror.fromTextArea(self.$refs.ide, {
+        mode: "text/javascript",
+        lineNumbers: true,
+        tabSize: 2
+      });
+      self.editor.setValue(self.param.js);
+    },
+    save(){
+      let self = this;
+      if (!self.param.code) {
+        self.$store.dispatch('box', {msg: "接口代码不能为空"});
+        return false;
       }
+      if (!self.editor.getValue()) {
+        self.$store.dispatch('box', {msg: "接口内容不能为空"});
+        return false;
+      }
+      self.$sendRequest({
+        url: env.resource.saveInterface,
+        params: {
+          id: self.param.id,
+          code: self.param.code,
+          name: self.param.name,
+          platform: self.param.platform,
+          minVersion: self.param.minVersion,
+          maxVersion: self.param.maxVersion,
+          js: self.editor.getValue()
+        }
+      }).then((data)=> {
+        if (data.code != 0) {
+          self.$store.dispatch('box', {msg: data.msg});
+          return false;
+        }
+        self.$store.dispatch('box', {msg: "保存成功"});
+        if (!self.param.id) {
+          self.param.id = data.data.id
+        }
+      }, (err)=> {
+        self.$store.dispatch('box', {msg: "网络异常，请稍后再试"});
+      });
+    },
+    cancel(){
+      this.$router.push({
+        path: "/interface/index"
+      });
     }
   }
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

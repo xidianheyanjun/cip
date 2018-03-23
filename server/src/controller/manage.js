@@ -6,7 +6,7 @@ let sqlObj = require("../sql/manage");
 let responseCode = require("../../util/response-code");
 @Controller({
     name: "Manage",
-    basePath: "/interface/manage"
+    basePath: "/manage"
 })
 class Manage {
     constructor(option) {

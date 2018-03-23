@@ -1,6 +1,6 @@
 let sqls = {};
 sqls["list"] = `
-    select id, code, name, platform, min_version as minVersion, max_version as maxVersion, js, create_time as createTime
+    select id, code, name, platform, min_version as minVersion, max_version as maxVersion, js, date_format(create_time, '%Y-%m-%d %H:%i:%s') as createTime
     from t_interface
     where flag = 0
     order by id;

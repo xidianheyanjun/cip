@@ -17,7 +17,7 @@ export default {
   },
   mounted() {
     let self = this;
-    window.toast(111);
+    window.webToastShow(111);
   }
 }
 </script>

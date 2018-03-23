@@ -4,7 +4,10 @@ let mysql = require("mysql");
 class BaseDao {
     constructor(config) {
         console.log(config);
-        let setting = Object.assign({connectionLimit: 100}, config);
+        let setting = Object.assign({
+            connectionLimit: 100,
+            multipleStatements: true
+        }, config);
         this.pool = mysql.createPool(setting);
     }
 

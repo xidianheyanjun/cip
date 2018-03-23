@@ -39,11 +39,16 @@
       </tr>
       <tr v-for="(row, index) in list">
         <template v-for="col in colModel">
+          <td v-if="col['code']=='platform'" :class="['data', index%2==1?'even':'odd']">
+            {{row[col["code"]] | matchPlatformName}}
+          </td>
           <td v-if="col['code']=='operate'" :class="['data', index%2==1?'even':'odd']">
             <span @click="modify(row)" class="btn hand">修改</span>
             <span @click="remove(row)" class="btn hand">删除</span>
           </td>
-          <td v-if="col['code']!='operate'" :class="['data', index%2==1?'even':'odd']">{{row[col["code"]]}}</td>
+          <td v-if="col['code']!='operate' && col['code']!='platform'" :class="['data', index%2==1?'even':'odd']">
+            {{row[col["code"]]}}
+          </td>
         </template>
       </tr>
     </table>
@@ -51,107 +56,118 @@
 </template>
 
 <script type="text/ecmascript-6">
-  import {mapGetters, mapActions} from 'vuex';
-  import env from '@/config/env';
-  import string from '@/util/string';
-  import common from "@/util/common";
-  import kv from "@/util/kv";
-  export default {
-    components: {},
-    data(){
-      return {
-        options: kv.platform,
-        param: {
-          id: "",
-          platform: kv.platform[0].value,
-          minVersion: "",
-          maxVersion: "",
-          code: "",
-          name: ""
-        },
-        colModel: [{
-          code: "id",
-          title: "标识"
-        }, {
-          code: "platform",
-          title: "平台"
-        }, {
-          code: "minVersion",
-          title: "最小版本"
-        }, {
-          code: "maxVersion",
-          title: "最大版本"
-        }, {
-          code: "name",
-          title: "接口名称"
-        }, {
-          code: "createTime",
-          title: "创建时间"
-        }, {
-          code: "operate",
-          title: "操作"
-        }],
-        list: [],
-        isRemoving: false
-      };
-    },
-    mounted() {
-      let self = this;
-      self.doQuery();
-    },
-    methods: {
-      doQuery(){
-        let self = this;
-        self.$sendRequest({
-          url: env.resource.interfaceList,
-          params: self.param
-        }).then((data)=> {
-          self.list = data.data || [];
-        }, (err)=> {
-        });
-      },
-      create(){
-        this.$router.push({
-          path: "/interface/detail",
-          query: {}
-        });
-      },
-      modify(row){
-        this.$router.push({
-          path: "/interface/detail",
-          query: {
-            id: row.id
-          }
-        });
-      },
-      remove(row){
-        let self = this;
-        if (self.isRemoving) {
-          console.log("self.isRemoving", self.isRemoving);
-          return false;
+import {mapGetters, mapActions} from 'vuex';
+import env from '@/config/env';
+import string from '@/util/string';
+import common from "@/util/common";
+import kv from "@/util/kv";
+export default {
+  components: {},
+  filters: {
+    matchPlatformName(value){
+      for (let m = 0; m < kv.platform.length; ++m) {
+        if (value == kv["platform"][m]["value"]) {
+          return kv["platform"][m]["name"];
         }
-        self.isRemoving = true;
-        self.$sendRequest({
-          url: env.resource.removeInterface,
-          params: {
-            id: row.id
-          }
-        }).then((data)=> {
-          if (data.code != 0) {
-            self.$store.dispatch('box', {msg: data.msg || "服务异常，请稍后再试"});
-            return false;
-          }
-
-          self.$store.dispatch('box', {msg: "删除成功"});
-          self.doQuery();
-          self.isRemoving = false;
-        }, (err)=> {
-          self.$store.dispatch('box', {msg: "网络异常，请稍后再试"});
-          self.isRemoving = false;
-        });
       }
     }
+  },
+  data(){
+    return {
+      options: kv.platform,
+      param: {
+        id: "",
+        platform: kv.platform[0].value,
+        minVersion: "",
+        maxVersion: "",
+        code: "",
+        name: ""
+      },
+      colModel: [{
+        code: "id",
+        title: "标识"
+      }, {
+        code: "code",
+        title: "接口代码"
+      }, {
+        code: "name",
+        title: "接口名称"
+      }, {
+        code: "platform",
+        title: "平台"
+      }, {
+        code: "minVersion",
+        title: "最小版本"
+      }, {
+        code: "maxVersion",
+        title: "最大版本"
+      }, {
+        code: "createTime",
+        title: "创建时间"
+      }, {
+        code: "operate",
+        title: "操作"
+      }],
+      list: [],
+      isRemoving: false
+    };
+  },
+  mounted() {
+    let self = this;
+    self.doQuery();
+  },
+  methods: {
+    doQuery(){
+      let self = this;
+      self.$sendRequest({
+        url: env.resource.interfaceList,
+        params: self.param
+      }).then((data)=> {
+        self.list = data.data || [];
+      }, (err)=> {
+      });
+    },
+    create(){
+      this.$router.push({
+        path: "/interface/detail",
+        query: {}
+      });
+    },
+    modify(row){
+      this.$router.push({
+        path: "/interface/detail",
+        query: {
+          id: row.id
+        }
+      });
+    },
+    remove(row){
+      let self = this;
+      if (self.isRemoving) {
+        console.log("self.isRemoving", self.isRemoving);
+        return false;
+      }
+      self.isRemoving = true;
+      self.$sendRequest({
+        url: env.resource.removeInterface,
+        params: {
+          id: row.id
+        }
+      }).then((data)=> {
+        if (data.code != 0) {
+          self.$store.dispatch('box', {msg: data.msg || "服务异常，请稍后再试"});
+          return false;
+        }
+        self.$store.dispatch('box', {msg: "删除成功"});
+        self.doQuery();
+        self.isRemoving = false;
+      }, (err)=> {
+        self.$store.dispatch('box', {msg: "网络异常，请稍后再试"});
+        self.isRemoving = false;
+      });
+    }
   }
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -165,7 +181,7 @@
     width: 100%;
     margin: 20px auto 0;
     border-collapse: collapse;
-    border: 1px solid #aaaaaa;
+    border: 1px solid #d5d5d5;
   }
 
   .table tr {
@@ -173,12 +189,13 @@
 
   .table tr td {
     padding: 10px 0;
-    border: 1px solid #aaaaaa;
+    border: 1px solid #d5d5d5;
   }
 
   .table tr td.head {
     text-align: center;
-    background-color: #999999;
+    color: #333333;
+    background-color: #eceff6;
   }
 
   .table tr td.data {
@@ -186,7 +203,7 @@
   }
 
   .table tr td.data.even {
-    background-color: #f1f1f1;
+    background-color: #eeeeee;
   }
 
   .table tr td.data.odd {

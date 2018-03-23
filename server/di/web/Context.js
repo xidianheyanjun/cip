@@ -48,7 +48,6 @@ class Context {
                     console.error("bean[" + autowiredName + "] is needed");
                     return false;
                 }
-                console.log("autowiredName", self["_bean"][autowiredName]);
                 bean[autowiredName] = ()=> {
                     return self["_bean"][autowiredName];
                 };

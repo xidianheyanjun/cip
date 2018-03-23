@@ -4,37 +4,28 @@ let Controller = require("../../di/web/annotation/Controller");
 let RequestMapping = require("../../di/web/annotation/RequestMapping");
 let Autowired = require("../../di/web/annotation/Autowired");
 let sqlObj = require("../sql/method");
-let kv = require("../../util/kv");
+let platformFilePathList = [
+    "../resource/platform/Appstore",
+    "../resource/platform/Gamecenter",
+    "../resource/platform/Space",
+    "../resource/platform/Browser"
+];
 @Controller({
     name: "Method",
-    basePath: "/native/method"
+    basePath: "/method"
 })
 class Method {
     constructor(option) {
+        // 生成平台链条
+        this.platformList = [];
+        for (let index = 0; index < platformFilePathList.length; ++index) {
+            let Platform = require(platformFilePathList[index]);
+            this.platformList.push(new Platform());
+        }
     }
 
     @Autowired
     cip() {
-    }
-
-    _matchPackage(platform) {
-        for (let m = 0; m < kv["platform"].length; ++m) {
-            if (platform == kv["platform"][m]["value"]) {
-                return kv["platform"][m]["value"];
-            }
-        }
-        return null;
-    }
-
-    _joinCode(arr) {
-        let str = "";
-        for (let m = 0; m < arr.length; ++m) {
-            if (m > 0) {
-                str += ",";
-            }
-            str += arr[m];
-        }
-        return str;
     }
 
     @RequestMapping({
@@ -42,30 +33,13 @@ class Method {
         method: "get"
     })
     pull(req, res) {
-        /*
-         var toast = function(text){
-         var info = {
-         info:{
-         toast: text
-         },
-         webErrorCatch: "callback",
-         localErrorCatch: "true"
-         };
-         return window.AppWebClient.invokeLocal("webToastShow", JSON.stringify(info));
-         };
-         */
         let self = this;
         let query = req["query"];
-        let cookies = req["cookies"];
-        let platform = cookies["vvc_pn"] || cookies["pn"];
-        let appVersion = parseInt(cookies["vvc_app_version"] || cookies["app_version"]) || 1;
+        let platform = self._matchPlatform(req);
+        let platformName = platform.getPlatformName();
+        let appVersion = platform.getVersion(req);
         let include = query["include"] || "";
-        console.log("pull-entry", platform, appVersion, include);
-        platform = self._matchPackage(platform);
-        if (!platform) {
-            res.send("");
-            return false;
-        }
+        console.log("pull-entry", platformName, appVersion, include);
         if (appVersion < 1 || appVersion > 9999999) {
             res.send("");
             return false;
@@ -79,10 +53,10 @@ class Method {
         let codeStr = self._joinCode(includeArr);
         self.cip().prepareQuery({
             sql: sqlObj["load"],
-            params: [codeStr, platform, appVersion, appVersion]
+            params: [codeStr, platformName, appVersion, appVersion]
         }).then(function (results) {
             console.log("native method matched count", results.length);
-            if (!results) {
+            if (!results || results.length == 0) {
                 res.send("");
                 return false;
             }
@@ -96,6 +70,27 @@ class Method {
             console.log(err);
             res.send("");
         });
+    }
+
+    _matchPlatform(req) {
+        let self = this;
+        for (let index = 0; index < self.platformList.length; ++index) {
+            let platform = self.platformList[index];
+            if (platform.isMatch(req)) {
+                return platform;
+            }
+        }
+    }
+
+    _joinCode(arr) {
+        let str = "";
+        for (let m = 0; m < arr.length; ++m) {
+            if (m > 0) {
+                str += ",";
+            }
+            str += arr[m];
+        }
+        return str;
     }
 }
 module.exports = Method;
