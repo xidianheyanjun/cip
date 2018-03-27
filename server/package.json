@@ -6,7 +6,8 @@
   "scripts": {
     "copy:dev": "node ./tools/copy.js ./env/dev.json ./env.json",
     "server:dev": "./node_modules/.bin/nodemon app",
-    "dev": "npm run copy:dev && npm run server:dev"
+    "dev": "npm run copy:dev && npm run server:dev",
+    "test": "./node_modules/.bin/nodemon test/main"
   },
   "author": "heyanjun <heyanjun@bbktel.com>",
   "license": "ISC",

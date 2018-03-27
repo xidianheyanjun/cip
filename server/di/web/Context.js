@@ -10,8 +10,7 @@ class Context {
         self["_class"] = self.cacheClass();
         self["_bean"] = self.initResource();
         // 创建全局过滤器和拦截器
-        self.createGlobalOperate(["beforeRequest", "afterRequest"], ["Filter", "Interceptor"]);
-        console.log(self["beforeRequestFilter"]);
+        self.createGlobalChain(["beforeRequest", "afterRequest"], ["Filter", "Interceptor"]);
         let routeObj = self.generateRoute();
         self.listenRequest({
             app: app,
@@ -45,7 +44,6 @@ class Context {
                 return false;
             }
             console.log("cache class[" + name + "]");
-            console.log(Bean["prototype"]);
             cacheClass[name] = Bean;
         }
         return cacheClass;
@@ -86,7 +84,7 @@ class Context {
         for (let key in _class) {
             let Bean = _class[key];
             let _autowired = Bean["prototype"]["_autowired"];
-            console.log(_autowired);
+            console.log("_autowired of " + key, _autowired);
             if (_autowired) {
                 for (let m = 0; m < _autowired.length; ++m) {
                     let autowiredName = _autowired[m]["descriptor"]["value"]["name"];
@@ -104,27 +102,31 @@ class Context {
         return _bean;
     }
 
-    createGlobalOperate(executeType, operateType) {
+    createGlobalChain(executeType, operateType) {
         let self = this;
         let env = self["env"] || {};
         let _bean = self["_bean"] || {};
         for (let m = 0; m < executeType.length; ++m) {
             for (let n = 0; n < operateType.length; ++n) {
-                let chainName = executeType[m] + operateType[n];
-                if (!env[chainName]) {
-                    console.log("chain is null", chainName);
+                let chainName = executeType[m] + "Chain";
+                let envChainKey = executeType[m] + operateType[n];
+                if (!env[envChainKey]) {
+                    console.log("chain is null", envChainKey);
                     continue;
                 }
                 self[chainName] = self[chainName] || [];
-                for (let index = 0; index < env[chainName].length; ++index) {
-                    let name = env[chainName][index]["name"];
+                for (let index = 0; index < env[envChainKey].length; ++index) {
+                    let name = env[envChainKey][index]["name"];
                     let bean = self.getBean(name);
                     if (!bean) {
                         continue;
                     }
+                    let srcPath = env[envChainKey][index]["path"];
+                    let path = srcPath.replace(/\*/g, ".*");
                     self[chainName].push({
                         name: name,
-                        path: env[chainName][index]["path"],
+                        operateType: operateType[n],
+                        path: new RegExp(path),
                         bean: bean
                     });
                 }
@@ -168,6 +170,35 @@ class Context {
         return obj;
     }
 
+    executeChain(req, res, methodList, index) {
+        if (index == methodList.length) {
+            return new Promise((subResolve)=> {
+                subResolve(true);
+            });
+            return false;
+        }
+        let self = this;
+        let item = methodList[index];
+        let requestPath = req.url;
+        let path = item["path"];
+        if (!path.test(requestPath)) {
+            return self.executeChain(req, res, methodList, ++index);
+        }
+        let operateType = item["operateType"].toLowerCase();
+        return new Promise((resolve)=> {
+            console.log("start execute chain", operateType, item["name"]);
+            item["bean"][operateType](req, res, resolve);
+        }).then((result)=> {
+            console.log("end   execute chain", operateType, item["name"], result);
+            if (!result) {
+                return new Promise((subResolve)=> {
+                    subResolve(result);
+                });
+            }
+            return self.executeChain(req, res, methodList, ++index);
+        });
+    }
+
     // 监听请求
     listenRequest(option) {
         let self = this;
@@ -178,33 +209,29 @@ class Context {
             let requestPath = req.url;
             let requestMethod = req.method.toLowerCase();
             console.log("request", requestPath, requestMethod);
-            // 支持异步过滤器 todo
-            for (let m = 0; m < self["beforeRequestFilter"].length; ++m) {
-                let filter = self["beforeRequestFilter"][m]["bean"]["filter"];
-                if (filter) {
-                    let flag = filter(req, res);
-                    if (!flag) {
-                        console.log("request is filtered by beforeRequestFilter", self["beforeRequestFilter"][m]["name"]);
-                        return false;
+            // 请求前|过滤器拦截器链条|支持异步|true:通过,false:不通过
+            self.executeChain(req, res, self["beforeRequestChain"], 0).then((result)=> {
+                console.log("result", result);
+                if (!result) {
+                    return false;
+                }
+                let isMatch = false;
+                for (let index = 0; index < _route.length; ++index) {
+                    let route = _route[index];
+                    if (route["regular"].test(requestPath) && route["method"] == requestMethod) {
+                        isMatch = true;
+                        route["dispach"](req, res);
+                        break;
                     }
                 }
-            }
-            let isMatch = false;
-            for (let index = 0; index < _route.length; ++index) {
-                let route = _route[index];
-                if (route["regular"].test(requestPath) && route["method"] == requestMethod) {
-                    isMatch = true;
-                    route["dispach"](req, res);
-                    break;
+                if (!isMatch) {
+                    if (_defaultRoute["dispach"]) {
+                        _defaultRoute["dispach"](req, res);
+                    } else {
+                        res.send("page not found");
+                    }
                 }
-            }
-            if (!isMatch) {
-                if (_defaultRoute["dispach"]) {
-                    _defaultRoute["dispach"](req, res);
-                } else {
-                    res.send("page not found");
-                }
-            }
+            });
         });
     }
 }
