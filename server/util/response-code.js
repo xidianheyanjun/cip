@@ -1,6 +1,3 @@
-/**
- * Created by Administrator on 2017/3/6.
- */
 let obj = {
     success: {
         code: 0,

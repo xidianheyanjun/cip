@@ -1,5 +1,8 @@
 export default {
   platform: [{
+    name: "所有",
+    value: ""
+  }, {
     name: "应用商店",
     value: "com.vivo.appstore"
   }, {

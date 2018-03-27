@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>测试创建节点</title>
+  <script>
+  window.onload = function () {
+    var tt = document.getElementById("tt");
+    var html = "";
+    for (var m = 0; m < 10000; ++m) {
+      html += "<tr><td>" + m + "</td></tr>";
+    }
+    tt.innerHTML += html;
+  };
+  </script>
+</head>
+<body>
+<table>
+  <tbody id="tt">
+  <tr>
+    <td>123</td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>

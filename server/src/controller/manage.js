@@ -4,6 +4,7 @@ let RequestMapping = require("../../di/web/annotation/RequestMapping");
 let Autowired = require("../../di/web/annotation/Autowired");
 let sqlObj = require("../sql/manage");
 let responseCode = require("../../util/response-code");
+let kv = require("../../util/kv");
 @Controller({
     name: "Manage",
     basePath: "/manage"
@@ -23,15 +24,23 @@ class Manage {
     list(req, res) {
         let self = this;
         let body = req["body"];
-        let id = parseInt(body["id"]);
-        let platform = body["platform"];
-        let minVersion = parseInt(body["minVersion"]);
-        let maxVersion = parseInt(body["maxVersion"]);
-        let code = body["code"];
-        let name = body["name"];
+        let id = parseInt(body["id"]) || "";
+        let platform = body["platform"] || "";
+        let validPlatformFlag = self.validPlatform(platform);
+        if (!validPlatformFlag) {
+            res.json({
+                code: responseCode["paramError"]["code"],
+                msg: responseCode["paramError"]["msg"]
+            });
+            return false;
+        }
+        let minVersion = parseInt(body["minVersion"]) || 1;
+        let maxVersion = parseInt(body["maxVersion"]) || 9999999;
+        let code = body["code"] || "";
+        let name = body["name"] || "";
         self.cip().prepareQuery({
             sql: sqlObj["list"],
-            params: [id, platform]
+            params: [("%" + id + "%"), ("%" + platform + "%"), ("%" + code + "%"), ("%" + name + "%"), minVersion, maxVersion]
         }).then(function (results) {
             console.log(results);
             res.json({
@@ -109,12 +118,20 @@ class Manage {
         let self = this;
         let body = req["body"];
         let id = parseInt(body["id"]);
-        let platform = body["platform"];
+        let platform = body["platform"] || "";
+        let validPlatformFlag = self.validPlatform(platform);
         let minVersion = parseInt(body["minVersion"]);
         let maxVersion = parseInt(body["maxVersion"]);
         let code = body["code"];
         let name = body["name"];
         let js = body["js"];
+        if (!validPlatformFlag || !minVersion || !maxVersion || !code || !name || !js) {
+            res.json({
+                code: responseCode["paramError"]["code"],
+                msg: responseCode["paramError"]["msg"]
+            });
+            return false;
+        }
         let sql = null;
         let params = null;
         if (id) {
@@ -143,6 +160,15 @@ class Manage {
                 msg: responseCode["failure"]["msg"]
             });
         });
+    }
+
+    validPlatform(platform) {
+        for (let m = 0; m < kv["platform"].length; ++m) {
+            if (platform == kv["platform"][m]["value"]) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 module.exports = Manage;
