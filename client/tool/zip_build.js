@@ -5,6 +5,7 @@ var sourceFolder = process.argv[2];// 源目录
 var targetFolder = process.argv[3];// 目标目录
 var tmpZipName = "tmp.zip";// 临时zip包名称
 var tmpZipPath = targetFolder + "/" + tmpZipName;//临时zip包路径
+var sourceZipName = "dist.zip";
 var createDir = function (path) {
   if (fs.existsSync(path)) {
     return false;
@@ -48,7 +49,7 @@ removeFile(tmpZipPath);
 console.log("start source folder", sourceFolder, "-->  target folder", targetFolder);
 var output = fs.createWriteStream(targetFolder + "/" + tmpZipName);
 buildZip(sourceFolder + "/*", output);
-var outputDist = fs.createWriteStream(targetFolder + "/dist.zip");
+var outputDist = fs.createWriteStream(targetFolder + "/" + sourceZipName);
 buildZip(sourceFolder + "/*", outputDist);
 var currentTimestamp = getCurrentTimestamp();
 console.log("currentTimestamp", currentTimestamp);
@@ -59,5 +60,4 @@ console.log("end   compute zip md5", tmpZipDataMd5);
 var targetZipName = currentTimestamp + "-" + tmpZipDataMd5 + ".zip";// 目标zip包名称
 var targetZipPath = targetFolder + "/" + targetZipName;// 目标zip包路径
 fs.renameSync(tmpZipPath, targetZipPath);
-fs.writeFileSync(targetFolder + "/dist.zip", fs.readFileSync(targetZipPath));
 console.log("end   source folder", sourceFolder, "-->  target folder", targetFolder);
