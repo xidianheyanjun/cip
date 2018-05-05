@@ -29,6 +29,14 @@ class Method {
     }
 
     @RequestMapping({
+        path: "/test",
+        method: "get"
+    })
+    test(req, res, name) {
+        res.send(`param-${name}`);
+    }
+
+    @RequestMapping({
         path: "/pull",
         method: "get"
     })

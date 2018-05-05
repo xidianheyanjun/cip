@@ -134,6 +134,19 @@ class Context {
         }
     }
 
+    parseFnParameterName(fn) {
+        let COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+        let DEFAULT_PARAMS = /=[^,)]+/mg;
+        let FAT_ARROWS = /=>.*$/mg;
+        let code = fn.prototype ? fn.prototype.constructor.toString() : fn.toString();
+        code = code
+            .replace(COMMENTS, '')
+            .replace(FAT_ARROWS, '')
+            .replace(DEFAULT_PARAMS, '');
+        let result = code.slice(code.indexOf('(') + 1, code.indexOf(')')).match(/([^\s,]+)/g);
+        return !result ? [] : result;
+    }
+
     // 生成路由
     generateRoute() {
         let self = this;
@@ -154,11 +167,15 @@ class Context {
             for (let m = 0; m < bean["_requestMapping"].length; ++m) {
                 let url = basePath + bean["_requestMapping"][m]["path"];
                 let method = bean["_requestMapping"][m]["method"] || "all";
+                let dispach = bean["_requestMapping"][m]["descriptor"]["value"];
+                let parameterNameList = self.parseFnParameterName(dispach);
                 console.log("listen", method, url);
                 let route = {
-                    regular: new RegExp(url),
+                    regular: new RegExp(`^${url}$`),
                     method: bean["_requestMapping"][m]["method"],
-                    dispach: bean["_requestMapping"][m]["descriptor"]["value"].bind(bean)
+                    dispach: bean["_requestMapping"][m]["descriptor"]["value"].bind(bean),
+                    bean: bean,
+                    parameterNameList: parameterNameList
                 };
                 if (url == "*" || url == "/*") {
                     obj["_defaultRoute"] = route;
@@ -215,24 +232,53 @@ class Context {
                 if (!result) {
                     return false;
                 }
-                let isMatch = false;
-                for (let index = 0; index < _route.length; ++index) {
-                    let route = _route[index];
-                    if (route["regular"].test(requestPath) && route["method"] == requestMethod) {
-                        isMatch = true;
-                        route["dispach"](req, res);
-                        break;
-                    }
+                let route = self.filterRoute(_route, requestPath, requestMethod);
+                let matchRoute = route || _defaultRoute;
+                if (!matchRoute || !matchRoute["bean"]) {
+                    res.send("page not found");
+                    return false;
                 }
-                if (!isMatch) {
-                    if (_defaultRoute["dispach"]) {
-                        _defaultRoute["dispach"](req, res);
-                    } else {
-                        res.send("page not found");
-                    }
-                }
+                // 注入参数
+                let parameterNameList = self.buildParameterList(req, res, matchRoute["parameterNameList"]);
+                matchRoute["dispach"].apply(matchRoute["bean"], parameterNameList);
             });
         });
+    }
+
+    buildParameterList(req, res, parameterNameList) {
+        let list = [];
+        for (let m = 0; m < parameterNameList.length; ++m) {
+            let parameterName = parameterNameList[m];
+            if (parameterName == "req") {
+                list.push(req);
+                continue;
+            }
+            if (parameterName == "res") {
+                list.push(res);
+                continue;
+            }
+            list.push(req["query"][parameterName] || req["body"][parameterName]);
+        }
+        return list;
+    }
+
+    filterOriginPath(requestPath) {
+        let questionIndex = requestPath.indexOf("?");
+        let str = questionIndex > -1 ? requestPath.substring(0, questionIndex) : requestPath;
+        let hashIndex = str.indexOf("#");
+        return hashIndex > -1 ? str.substring(0, hashIndex) : str;
+    }
+
+    filterRoute(routeList, requestPath, requestMethod) {
+        let originPath = this.filterOriginPath(requestPath);
+        console.log("originPath", originPath);
+        for (let index = 0; index < routeList.length; ++index) {
+            let route = routeList[index];
+            if (route["regular"].test(originPath) && route["method"] == requestMethod) {
+                return route;
+            }
+        }
+        return null;
     }
 }
 module.exports = Context;

@@ -1,13 +1,13 @@
 "use strict";
-class Appstore {
+class Space {
     constructor(option) {
-        this.platformName = "com.bbk.appstore";
+        this.platformName = "com.vivo.space";
     }
 
     isMatch(req) {
         let cookies = req["cookies"] || {};
         let packageName = cookies["vvc_pn"] || cookies["pn"] || "";
-        if (packageName == this.platformName || cookies["an"]) {
+        if (packageName == this.platformName) {
             return true;
         }
         return false;
@@ -22,4 +22,4 @@ class Appstore {
         return parseInt(cookies["vvc_app_version"] || cookies["app_version"]) || 1;
     }
 }
-module.exports = Appstore;
+module.exports = Space;

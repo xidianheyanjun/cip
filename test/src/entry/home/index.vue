@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div @click="showCookie">showCookie</div>
+    <hr>
+    <div>cookies:{{cookies}}</div>
   </div>
 </template>
 
@@ -9,15 +12,25 @@ import env from '@/config/env';
 import string from '@/util/string';
 import native from '@/util/native';
 import common from "@/util/common";
+import chain from "@/util/platform/Chain";
+let platform = chain.getCurrentPlatform();
 export default {
   components: {},
   computed: mapGetters([]),
   data(){
-    return {};
+    return {
+      cookies: ""
+    };
   },
   mounted() {
     let self = this;
-    window.webToastShow(111);
+    // window.webToastShow(111);
+    console.log(`current platform:${platform.getPlatformName()}`);
+  },
+  methods: {
+    showCookie() {
+      this.cookies = document.cookie;
+    }
   }
 }
 </script>
